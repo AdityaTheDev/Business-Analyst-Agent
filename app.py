@@ -56,6 +56,7 @@ async def run_agent_logic(prompt: str, session_id: str) -> Dict[str, Any]:
         tool_responses = []
         final_response = ""
         pdf_path = None
+        excel_path= None
 
         async for event in runner.run_async(
             user_id=USER_ID,
@@ -81,6 +82,8 @@ async def run_agent_logic(prompt: str, session_id: str) -> Dict[str, Any]:
                         for tool in tool_responses:
                             if tool.get("name") == "save_report" or tool.get("name") == "save_user_manual" or tool.get("name") =="save_usecase_acceptance_criteria":
                                 pdf_path = tool.get("response", {}).get("result")
+                            elif tool.get("name")=="save_task_chart":
+                                excel_path = tool.get("response", {}).get("result")
                                 break
 
 
@@ -97,6 +100,7 @@ async def run_agent_logic(prompt: str, session_id: str) -> Dict[str, Any]:
             'tool_calls': tool_calls,
             'tool_responses': tool_responses,
             'pdf_path': pdf_path,
+            'excel_path': excel_path,
             'success': True
         }
 
@@ -205,6 +209,15 @@ def main():
                 )
                 if result['pdf_path'] not in st.session_state.pdf_files:
                     st.session_state.pdf_files.append(result['pdf_path'])
+                    
+            if result['excel_path']:
+                st.success(f"📊 Gantt Chart generated: {os.path.basename(result['excel_path'])}")
+                st.download_button(
+                    label="📥 Download Gantt Chart",
+                    data=open(result['excel_path'], "rb").read(),
+                    file_name=os.path.basename(result['excel_path']),
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                )
 
             assistant_message = {
                 "role": "assistant",

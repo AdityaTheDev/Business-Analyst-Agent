@@ -10,8 +10,8 @@ from google.adk.runners import Runner
 from google.genai import types # For creating message Content/Parts
 from typing import Optional 
 from dotenv import load_dotenv
-from tools.tools import save_report, save_user_manual, save_usecase_acceptance_criteria
-from prompt import BRD_instruction, Business_analyst_instruction, BRD_Revision_Instruction, Usermanual_instruction, usecase_acceptance_criteria_instruction
+from tools.tools import save_report, save_user_manual, save_usecase_acceptance_criteria, save_task_chart
+from prompt import BRD_instruction, Business_analyst_instruction, BRD_Revision_Instruction, Usermanual_instruction, usecase_acceptance_criteria_instruction, task_chart_instruction
 from google.adk.tools import google_search
 # from subagents.BRDGeneratorAgent.agent import BRDGeneratorAgent
 import warnings
@@ -73,6 +73,16 @@ UsecaseAcceptanceCriteriaAgent = Agent(
         tools=[save_usecase_acceptance_criteria],
     )
 
+TaskChartAgent= Agent(
+        model = MODEL_GEMINI_2_0_FLASH,
+        # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
+        name="TaskChartAgent",
+        instruction=task_chart_instruction,
+        description="You are a task chart agent. Given a set of tasks, start time and endtime, You will use the 'save_task_chart' tool to create a gant chart.", # Crucial for delegation
+        tools=[save_task_chart],
+    )
+
+
 # --- Business Analyst Agent ---
 business_analyst_agent = Agent(
         model = MODEL_GEMINI_2_0_FLASH,
@@ -80,8 +90,8 @@ business_analyst_agent = Agent(
         name="business_analyst_agent",
         instruction=Business_analyst_instruction,
         output_key="ba_output",
-        description="You are a business analyst. You understand the business requirement and delegate the task to the subagents like 'BRDGeneratorAgent' and BRDRevisionAgent.", # Crucial for delegation
-        sub_agents=[BRDGeneratorAgent, BRDRevisionAgent, UserManualAgent, UsecaseAcceptanceCriteriaAgent],
+        description="You are a business analyst. You understand the business requirement and delegate the task to the subagents like 'BRDGeneratorAgent','BRDRevisionAgent', 'UserManualAgent', 'UsecaseAcceptanceCriteriaAgent' and 'TaskChartAgent'.", # Crucial for delegation
+        sub_agents=[BRDGeneratorAgent, BRDRevisionAgent, UserManualAgent, UsecaseAcceptanceCriteriaAgent, TaskChartAgent],
     )
 
 root_agent=business_analyst_agent

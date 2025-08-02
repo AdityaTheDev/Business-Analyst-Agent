@@ -4,7 +4,12 @@ from reportlab.pdfgen import canvas
 import os
 import re
 import json
-from datetime import datetime
+import pandas as pd
+import openpyxl
+from openpyxl.styles import PatternFill, Alignment, Font
+from openpyxl.utils import get_column_letter
+from datetime import datetime, timedelta
+from typing import List
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -256,107 +261,99 @@ def save_usecase_acceptance_criteria(report: str) -> str:
     save_logs(filename,report)
     return output_path
 
-if __name__=="__main__":
-    report="""
-    
-3
+def save_task_chart(tasks:str):
+    tasks=json.loads(tasks)
 
-# Business Requirements Document: Leave Approval System
-## 1. Title Page
-**Project Name:** Leave Approval System
-**Client:** [Client Name]
-**Date:** October 26, 2023
-**Version:** 1.0
-## 2. Table of Contents
-1.  Title Page
-2.  Table of Contents
-3.  Executive Summary
-4.  Business Objective
-5.  Background
-6.  Scope
-7.  Stakeholders
-8.  Requirements
-9.  Assumptions and Constraints
-10. Success Metrics
-11. Timeline or Milestones
-12. Appendix
-## 3. Executive Summary
-This document outlines the business requirements for a new Leave Approval System. This system will automate and streamline the leave request and approval process, integrating with the existing HRMS to provide employees with self-service access to leave information and managers with an efficient approval workflow.  The initial rollout will target three departments, with a Q4 launch.
-## 4. Business Objective
-The primary objective is to automate the leave approval process, reducing administrative overhead and improving efficiency. This will also empower employees with self-service access to their leave information, leading to increased satisfaction.
-## 5. Background
-The current leave approval process is manual and time-consuming. This leads to delays in approvals, increased administrative burden, and lack of visibility for employees regarding their leave status and balances.  The new system aims to address these challenges by providing an automated, transparent, and user-friendly solution.
-## 6. Scope
-### 6.1 In-Scope
-*   Employee submission of leave requests.
-*   Manager approval/rejection of leave requests.
-*   Integration with existing HRMS for employee data and leave balances.
-*   Automated notifications for leave requests and approvals.
-*   Employee access to leave history and balance information.
-*   Browser-based and mobile-friendly interface.
-*   Reporting on leave trends.
-*   Support for various leave types (e.g., vacation, sick leave).
-*   Role-based access control (employees, managers).
-*   Initial rollout to 3 departments.
-### 6.2 Out-of-Scope
-*   Payroll integration (initially).
-*   Advanced reporting and analytics beyond basic leave trends.
-*   Integration with other systems besides HRMS.
-*   Support for external contractors (initially).
-## 7. Stakeholders
-*   Employees: End-users of the system who will submit leave requests and view their leave information.
-*   Managers: Responsible for approving or rejecting leave requests.
-*   HR Department: Oversees the leave approval process and manages system configuration.
-*   IT Department: Responsible for system implementation, maintenance, and support.
-*   Project Sponsor: [Name/Title] - Provides overall project guidance and funding.
-## 8. Requirements
-### 8.1 Functional Requirements
-*   **REQ-1:** The system shall allow employees to submit leave requests online.
-*   **REQ-2:** The system shall automatically route leave requests to the employee's manager for approval.
-*   **REQ-3:** Managers shall be able to approve or reject leave requests with comments.
-*   **REQ-4:** The system shall send automated notifications to employees regarding the status of their leave requests.
-*   **REQ-5:** The system shall display employees' current leave balances.
-*   **REQ-6:** The system shall maintain a history of all leave requests and approvals for each employee.
-*   **REQ-7:** The system shall integrate with the existing HRMS to retrieve employee data and update leave balances.
-*   **REQ-8:** The system shall support different leave types (e.g., vacation, sick leave, personal leave).
-*   **REQ-9:** The system shall provide role-based access control, ensuring that only authorized users can access specific functionalities.
-*   **REQ-10:** The system shall generate reports on leave trends, such as total leave days taken per department.
-### 8.2 Non-Functional Requirements
-*   **NFR-1:** The system shall be accessible via a web browser and be mobile-friendly.
-*   **NFR-2:** The system shall be secure and protect sensitive employee data.
-*   **NFR-3:** The system shall be user-friendly and easy to navigate.
-*   **NFR-4:** The system shall be reliable and available during business hours.
-*   **NFR-5:** The system shall be scalable to accommodate future growth.
-*   **NFR-6:** The system should have a response time of less than 3 seconds for all common operations.
-## 9. Assumptions and Constraints
-*   **Assumption 1:** The existing HRMS has a well-defined API for integration.
-*   **Assumption 2:** All employees have access to a computer or mobile device with internet connectivity.
-*   **Constraint 1:** The project must be completed within the allocated budget.
-*   **Constraint 2:** The system must be compliant with all relevant data privacy regulations.
-*   **Constraint 3:** The system needs to be launched in Q4.
-## 10. Success Metrics
+    for t in tasks:
+        t["start_date"] = pd.to_datetime(t["start_date"])
+        t["end_date"] = pd.to_datetime(t["end_date"])
 
-*   Reduced time for leave approval process (e.g., from 5 days to 1 day).
-*   Increased employee satisfaction with the leave process (measured through surveys).
-*   Reduced administrative overhead for HR department (measured by time savings).
-*   Improved accuracy of leave data.
-*   High system adoption rate among employees and managers.
-## 11. Timeline or Milestones
-*   **Phase 1: Requirements Gathering and Design (2 weeks)**
-*   **Phase 2: Development (6 weeks)**
-*   **Phase 3: Testing (2 weeks)**
-*   **Phase 4: Deployment and Training (2 weeks)**
-*   **Go-Live: Q4**
-## 12. Appendix
-*   [Optional: Include any supporting documents, such as process flow diagrams or data dictionaries.]
-    """
-    log_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "logs", "brd_log.json"))
-    with open(log_path,'r') as f:
-        data=json.load(f)
-    print(data[-1]['brd_text'])
-    save_report(data[-1]['brd_text'])
-    # root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-    # output_folder = os.path.join(root_dir, 'Output')
-    # os.makedirs(output_folder, exist_ok=True)
-    # filename=get_next_filename(base_name="BRD",ext="pdf",folder=output_folder)
-    # save_logs(filename,"Iam Yogesh")
+    start_all = min(t["start_date"] for t in tasks)
+    end_all = max(t["end_date"] for t in tasks)
+    all_dates = pd.date_range(start_all, end_all)
+
+    # 3. Create initial Excel file
+    root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+    output_folder = os.path.join(root_dir, 'Task_Chart')
+    os.makedirs(output_folder, exist_ok=True)
+    excel_file = "task_chart.xlsx"
+    excel_file = os.path.join(output_folder,excel_file)
+
+    columns = ["Task", "Start Date", "End Date"] + [date.strftime("%Y-%m-%d") for date in all_dates]
+    rows = []
+    for t in tasks:
+        row = {
+            "Task": t["task"],
+            "Start Date": t["start_date"].strftime("%Y-%m-%d"),
+            "End Date": t["end_date"].strftime("%Y-%m-%d")
+        }
+        rows.append(row)
+
+    df = pd.DataFrame(rows, columns=columns)
+    df.to_excel(excel_file, index=False)
+
+    # 4. Color Gantt bars with different colors & insert task names
+    wb = openpyxl.load_workbook(excel_file)
+    ws = wb.active
+
+    # Color palette
+    task_colors = [
+        "4F81BD", "C0504D", "9BBB59", "8064A2",
+        "F79646", "2C4D75", "00B0F0", "92D050"
+    ]
+
+    font = Font(color="FFFFFF", bold=True)
+    align = Alignment(horizontal="center", vertical="center")
+
+    for row_idx, (task, color_hex) in enumerate(zip(tasks, task_colors), start=2):
+        start = task["start_date"]
+        end = task["end_date"]
+        duration = (end - start).days + 1
+
+        start_col_offset = (start - start_all).days + 4  # offset for Task, Start, End
+        end_col_offset = start_col_offset + duration - 1
+
+        # Create fill for this task
+        fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+
+        # Merge cells for task duration
+        ws.merge_cells(
+            start_row=row_idx,
+            start_column=start_col_offset,
+            end_row=row_idx,
+            end_column=end_col_offset
+        )
+
+        # Write task name inside the merged cell
+        cell = ws.cell(row=row_idx, column=start_col_offset)
+        cell.value = task["task"]
+        cell.fill = fill
+        cell.font = font
+        cell.alignment = align
+
+        # Apply fill to all cells in the merged range
+        for col in range(start_col_offset, end_col_offset + 1):
+            ws.cell(row=row_idx, column=col).fill = fill
+
+    # Auto-size columns
+    for col in ws.columns:
+        max_length = 0
+        column = col[0].column_letter
+        for cell in col:
+            if cell.value:
+                max_length = max(max_length, len(str(cell.value)))
+        ws.column_dimensions[column].width = max_length + 2
+
+    wb.save(excel_file)
+    print(f"Gantt chart saved to: {excel_file}")
+    return excel_file
+
+if __name__ == "__main__":
+    tasks = [
+    {"task": "Research competitors", "start_date": "2025-08-01", "end_date": "2025-08-03"},
+    {"task": "Create prototype", "start_date": "2025-08-04", "end_date": "2025-08-08"},
+    {"task": "Write documentation", "start_date": "2025-08-02", "end_date": "2025-08-06"},
+    {"task": "Write journal", "start_date": "2025-08-03", "end_date": "2025-08-20"}
+
+]
+    save_task_chart(tasks)

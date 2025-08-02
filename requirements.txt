@@ -3,6 +3,7 @@ python-dotenv
 google-generativeai
 reportlab
 streamlit
+openpyxl
 # sounddevice 
 # soundfile
 # openai-whisper

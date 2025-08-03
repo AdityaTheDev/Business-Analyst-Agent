@@ -264,6 +264,7 @@ def save_usecase_acceptance_criteria(report: str) -> str:
 def save_task_chart(tasks:str):
     tasks=json.loads(tasks)
 
+    # 2. Convert dates and get full date range
     for t in tasks:
         t["start_date"] = pd.to_datetime(t["start_date"])
         t["end_date"] = pd.to_datetime(t["end_date"])
@@ -278,7 +279,6 @@ def save_task_chart(tasks:str):
     os.makedirs(output_folder, exist_ok=True)
     excel_file = "task_chart.xlsx"
     excel_file = os.path.join(output_folder,excel_file)
-
     columns = ["Task", "Start Date", "End Date"] + [date.strftime("%Y-%m-%d") for date in all_dates]
     rows = []
     for t in tasks:
@@ -305,7 +305,7 @@ def save_task_chart(tasks:str):
     font = Font(color="FFFFFF", bold=True)
     align = Alignment(horizontal="center", vertical="center")
 
-    for row_idx, (task, color_hex) in enumerate(zip(tasks, task_colors), start=2):
+    for row_idx, task, in enumerate(tasks, start=2):
         start = task["start_date"]
         end = task["end_date"]
         duration = (end - start).days + 1
@@ -314,6 +314,7 @@ def save_task_chart(tasks:str):
         end_col_offset = start_col_offset + duration - 1
 
         # Create fill for this task
+        color_hex = task_colors[(row_idx - 2) % len(task_colors)]
         fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
 
         # Merge cells for task duration
@@ -349,11 +350,12 @@ def save_task_chart(tasks:str):
     return excel_file
 
 if __name__ == "__main__":
-    tasks = [
-    {"task": "Research competitors", "start_date": "2025-08-01", "end_date": "2025-08-03"},
-    {"task": "Create prototype", "start_date": "2025-08-04", "end_date": "2025-08-08"},
-    {"task": "Write documentation", "start_date": "2025-08-02", "end_date": "2025-08-06"},
-    {"task": "Write journal", "start_date": "2025-08-03", "end_date": "2025-08-20"}
+#     tasks = [
+#     {"task": "Research competitors", "start_date": "2025-08-01", "end_date": "2025-08-03"},
+#     {"task": "Create prototype", "start_date": "2025-08-04", "end_date": "2025-08-08"},
+#     {"task": "Write documentation", "start_date": "2025-08-02", "end_date": "2025-08-06"},
+#     {"task": "Write journal", "start_date": "2025-08-03", "end_date": "2025-08-20"}
 
-]
+# ]
+    tasks='[{"task": "Requirement Gathering", "start_date": "2025-08-01", "end_date": "2025-08-03"}, {"task": "Stakeholder Meeting", "start_date": "2025-08-02", "end_date": "2025-08-02"}, {"task": "Feasibility Analysis", "start_date": "2025-08-03", "end_date": "2025-08-05"}, {"task": "Project Planning", "start_date": "2025-08-04", "end_date": "2025-08-06"}, {"task": "UI/UX Wireframe Design", "start_date": "2025-08-05", "end_date": "2025-08-08"}, {"task": "Database Schema Design", "start_date": "2025-08-06", "end_date": "2025-08-09"}, {"task": "Backend API Setup", "start_date": "2025-08-08", "end_date": "2025-08-12"}, {"task": "Frontend Layout Implementation", "start_date": "2025-08-09", "end_date": "2025-08-13"}, {"task": "Authentication Module Integration", "start_date": "2025-08-12", "end_date": "2025-08-14"}, {"task": "Dashboard Development", "start_date": "2025-08-13", "end_date": "2025-08-17"}, {"task": "Notification System Setup", "start_date": "2025-08-14", "end_date": "2025-08-15"}, {"task": "QA Test Case Preparation", "start_date": "2025-08-16", "end_date": "2025-08-17"}, {"task": "Unit Testing", "start_date": "2025-08-17", "end_date": "2025-08-19"}, {"task": "Bug Fixing Phase 1", "start_date": "2025-08-18", "end_date": "2025-08-20"}, {"task": "User Feedback Collection", "start_date": "2025-08-20", "end_date": "2025-08-21"}, {"task": "Performance Optimization", "start_date": "2025-08-21", "end_date": "2025-08-23"}, {"task": "Final QA Review", "start_date": "2025-08-24", "end_date": "2025-08-25"}, {"task": "Client Demo Preparation", "start_date": "2025-08-26", "end_date": "2025-08-27"}, {"task": "Client Presentation", "start_date": "2025-08-28", "end_date": "2025-08-28"}, {"task": "Project Closure & Documentation", "start_date": "2025-08-29", "end_date": "2025-08-31"}]'
     save_task_chart(tasks)

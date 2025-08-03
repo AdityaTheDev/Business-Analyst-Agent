@@ -122,6 +122,8 @@ def initialize_session_state():
         st.session_state.conversation_history = []
     if 'pdf_files' not in st.session_state:
         st.session_state.pdf_files = []
+    if 'excel_files' not in st.session_state:
+        st.session_state.excel_files = []  
 
 def display_tool_calls(tool_calls: List[Dict[str, Any]]):
     if tool_calls:
@@ -145,6 +147,16 @@ def main():
         page_icon="🤖",
         layout="wide"
     )
+    st.sidebar.title("Brains Behind the Agent")
+    st.sidebar.markdown(
+    "[![LinkedIn](https://img.shields.io/badge/Aditya%20H-LinkedIn-blue?logo=linkedin)](https://www.linkedin.com/in/aditya26/)",
+    unsafe_allow_html=True
+)
+
+    st.sidebar.markdown(
+    "[![LinkedIn](https://img.shields.io/badge/Yogesh%20Karthik-LinkedIn-blue?logo=linkedin)](https://www.linkedin.com/in/yogeshkarthik/)",
+    unsafe_allow_html=True
+)
 
     get_adk_runner()
     initialize_session_state()
@@ -155,9 +167,9 @@ def main():
     with st.sidebar:
         st.header("Session Info")
         st.text(f"Session ID: {st.session_state.session_id[:13]}...")
-        st.info("🧠 **Agent Memory**: Context is preserved for this session.")
+        st.info("**Agent Memory**: Context is preserved for this session.")
 
-        if st.button("🔄 New Session"):
+        if st.button("New Session"):
             st.session_state.clear()
             st.rerun()
 
@@ -165,19 +177,32 @@ def main():
             st.header("📄 Generated PDFs")
             for i, pdf_file in enumerate(st.session_state.pdf_files):
                 st.download_button(
-                    label=f"📥 Download PDF {i+1}",
+                    # label=f"📥 Download PDF {i+1}",
+                    label=f"{os.path.basename(pdf_file)}",
                     data=open(pdf_file, "rb").read(),
                     file_name=os.path.basename(pdf_file),
                     mime="application/pdf"
                 )
+                
+        for i, excel_file in enumerate(st.session_state.excel_files):
+            if excel_file and os.path.isfile(excel_file):
+                st.header("� Generated Excels")
+                st.download_button(
+                    label=f"{os.path.basename(excel_file)}",
+                    data=open(excel_file, "rb").read(),
+                    file_name=os.path.basename(excel_file),
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    key=f"excel_{i}"
+                )
+
 
     for message in st.session_state.conversation_history:
         with st.chat_message(message["role"]):
             st.write(message["content"])
-            if "tool_calls" in message:
-                display_tool_calls(message["tool_calls"])
-            if "tool_responses" in message:
-                display_tool_responses(message["tool_responses"])
+            # if "tool_calls" in message:
+            #     display_tool_calls(message["tool_calls"])
+            # if "tool_responses" in message:
+            #     display_tool_responses(message["tool_responses"])
 
     if prompt := st.chat_input("I'm a Business Analyst. I can create project documents for you!. How can I help you?"):
         st.session_state.conversation_history.append({
@@ -196,8 +221,8 @@ def main():
             if result['final_response']:
                 st.write(result['final_response'])
 
-            display_tool_calls(result['tool_calls'])
-            display_tool_responses(result['tool_responses'])
+            # display_tool_calls(result['tool_calls'])
+            # display_tool_responses(result['tool_responses'])
 
             if result['pdf_path']:
                 st.success(f"📄 PDF generated: {os.path.basename(result['pdf_path'])}")
@@ -209,15 +234,21 @@ def main():
                 )
                 if result['pdf_path'] not in st.session_state.pdf_files:
                     st.session_state.pdf_files.append(result['pdf_path'])
-                    
-            if result['excel_path']:
-                st.success(f"📊 Gantt Chart generated: {os.path.basename(result['excel_path'])}")
-                st.download_button(
-                    label="📥 Download Gantt Chart",
-                    data=open(result['excel_path'], "rb").read(),
-                    file_name=os.path.basename(result['excel_path']),
-                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                )
+
+            if result.get('excel_path'):
+                excel_path = result['excel_path']
+                if os.path.isfile(excel_path):  # check if path is valid
+                    st.success(f"📊 Task Chart generated: {os.path.basename(excel_path)}")
+                    st.download_button(
+                        label="📥 Download Task Chart",
+                        data=open(excel_path, "rb").read(),
+                        file_name=os.path.basename(excel_path),
+                        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                    )
+                    if excel_path not in st.session_state.excel_files:
+                        st.session_state.excel_files.append(excel_path)
+
+
 
             assistant_message = {
                 "role": "assistant",
@@ -226,6 +257,7 @@ def main():
                 "tool_responses": result['tool_responses']
             }
             st.session_state.conversation_history.append(assistant_message)
+
 
 if __name__ == "__main__":
     main()

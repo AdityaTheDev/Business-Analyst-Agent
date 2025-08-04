@@ -186,7 +186,7 @@ def main():
                 
         for i, excel_file in enumerate(st.session_state.excel_files):
             if excel_file and os.path.isfile(excel_file):
-                st.header("� Generated Excels")
+                st.header("📄 Generated Excels")
                 st.download_button(
                     label=f"{os.path.basename(excel_file)}",
                     data=open(excel_file, "rb").read(),

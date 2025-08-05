@@ -355,6 +355,13 @@ def save_usecase_acceptance_criteria(report: str) -> str:
 
 
 def save_task_chart(tasks: str):
+    """
+    Converts a string representation of a list of tasks with start and end dates into a formatted Excel Gantt chart.
+    Args:
+        tasks (str): JSON string representation of the tasks.
+    Returns:
+        str: The file path of the saved Gantt chart Excel file.
+    """
     tasks = json.loads(tasks)
 
     # Convert dates

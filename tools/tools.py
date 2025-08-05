@@ -9,6 +9,8 @@ import openpyxl
 from openpyxl.styles import PatternFill, Alignment, Font
 from openpyxl.utils import get_column_letter
 from datetime import datetime, timedelta
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.formatting.rule import FormulaRule
 from typing import List
 
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
@@ -261,42 +263,139 @@ def save_usecase_acceptance_criteria(report: str) -> str:
     save_logs(filename,report)
     return output_path
 
-def save_task_chart(tasks:str):
-    tasks=json.loads(tasks)
+# old function without status column
 
-    # 2. Convert dates and get full date range
+# def save_task_chart(tasks:str):
+#     tasks=json.loads(tasks)
+
+#     # 2. Convert dates and get full date range
+#     for t in tasks:
+#         t["start_date"] = pd.to_datetime(t["start_date"])
+#         t["end_date"] = pd.to_datetime(t["end_date"])
+
+#     start_all = min(t["start_date"] for t in tasks)
+#     end_all = max(t["end_date"] for t in tasks)
+#     all_dates = pd.date_range(start_all, end_all)
+
+#     # 3. Create initial Excel file
+#     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+#     output_folder = os.path.join(root_dir, 'Task_Chart')
+#     os.makedirs(output_folder, exist_ok=True)
+#     excel_file = "task_chart.xlsx"
+#     excel_file = os.path.join(output_folder,excel_file)
+#     columns = ["Task", "Start Date", "End Date"] + [date.strftime("%Y-%m-%d") for date in all_dates]
+#     rows = []
+#     for t in tasks:
+#         row = {
+#             "Task": t["task"],
+#             "Start Date": t["start_date"].strftime("%Y-%m-%d"),
+#             "End Date": t["end_date"].strftime("%Y-%m-%d")
+#         }
+#         rows.append(row)
+
+#     df = pd.DataFrame(rows, columns=columns)
+#     df.to_excel(excel_file, index=False)
+
+#     # 4. Color Gantt bars with different colors & insert task names
+#     wb = openpyxl.load_workbook(excel_file)
+#     ws = wb.active
+
+#     # Color palette
+#     task_colors = [
+#         "4F81BD", "C0504D", "9BBB59", "8064A2",
+#         "F79646", "2C4D75", "00B0F0", "92D050"
+#     ]
+
+#     font = Font(color="FFFFFF", bold=True)
+#     align = Alignment(horizontal="center", vertical="center")
+
+#     for row_idx, task, in enumerate(tasks, start=2):
+#         start = task["start_date"]
+#         end = task["end_date"]
+#         duration = (end - start).days + 1
+
+#         start_col_offset = (start - start_all).days + 4  # offset for Task, Start, End
+#         end_col_offset = start_col_offset + duration - 1
+
+#         # Create fill for this task
+#         color_hex = task_colors[(row_idx - 2) % len(task_colors)]
+#         fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
+
+#         # Merge cells for task duration
+#         ws.merge_cells(
+#             start_row=row_idx,
+#             start_column=start_col_offset,
+#             end_row=row_idx,
+#             end_column=end_col_offset
+#         )
+
+#         # Write task name inside the merged cell
+#         cell = ws.cell(row=row_idx, column=start_col_offset)
+#         cell.value = task["task"]
+#         cell.fill = fill
+#         cell.font = font
+#         cell.alignment = align
+
+#         # Apply fill to all cells in the merged range
+#         for col in range(start_col_offset, end_col_offset + 1):
+#             ws.cell(row=row_idx, column=col).fill = fill
+
+#     # Auto-size columns
+#     for col in ws.columns:
+#         max_length = 0
+#         column = col[0].column_letter
+#         for cell in col:
+#             if cell.value:
+#                 max_length = max(max_length, len(str(cell.value)))
+#         ws.column_dimensions[column].width = max_length + 2
+
+#     wb.save(excel_file)
+#     print(f"Gantt chart saved to: {excel_file}")
+#     return excel_file
+
+
+def save_task_chart(tasks: str):
+    tasks = json.loads(tasks)
+
+    # Convert dates
     for t in tasks:
         t["start_date"] = pd.to_datetime(t["start_date"])
         t["end_date"] = pd.to_datetime(t["end_date"])
 
+    # Get overall date range
     start_all = min(t["start_date"] for t in tasks)
     end_all = max(t["end_date"] for t in tasks)
     all_dates = pd.date_range(start_all, end_all)
 
-    # 3. Create initial Excel file
+    # # Prepare output folder
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
     output_folder = os.path.join(root_dir, 'Task_Chart')
     os.makedirs(output_folder, exist_ok=True)
     excel_file = "task_chart.xlsx"
     excel_file = os.path.join(output_folder,excel_file)
-    columns = ["Task", "Start Date", "End Date"] + [date.strftime("%Y-%m-%d") for date in all_dates]
+
+    # Define columns including the new Status column
+    columns = ["Task", "Start Date", "End Date", "Status"] + [date.strftime("%Y-%m-%d") for date in all_dates]
+
+    # Create DataFrame rows
     rows = []
     for t in tasks:
         row = {
             "Task": t["task"],
             "Start Date": t["start_date"].strftime("%Y-%m-%d"),
-            "End Date": t["end_date"].strftime("%Y-%m-%d")
+            "End Date": t["end_date"].strftime("%Y-%m-%d"),
+            "Status": ""  # Empty to be filled by dropdown
         }
         rows.append(row)
 
     df = pd.DataFrame(rows, columns=columns)
     df.to_excel(excel_file, index=False)
 
-    # 4. Color Gantt bars with different colors & insert task names
+    # Load workbook to apply formatting
     wb = openpyxl.load_workbook(excel_file)
     ws = wb.active
 
-    # Color palette
+    # Define colors
     task_colors = [
         "4F81BD", "C0504D", "9BBB59", "8064A2",
         "F79646", "2C4D75", "00B0F0", "92D050"
@@ -305,19 +404,20 @@ def save_task_chart(tasks:str):
     font = Font(color="FFFFFF", bold=True)
     align = Alignment(horizontal="center", vertical="center")
 
-    for row_idx, task, in enumerate(tasks, start=2):
+    # Apply Gantt colors
+    for row_idx, task in enumerate(tasks, start=2):
         start = task["start_date"]
         end = task["end_date"]
         duration = (end - start).days + 1
 
-        start_col_offset = (start - start_all).days + 4  # offset for Task, Start, End
+        # Offset: Task, Start, End, Status = 4 columns
+        start_col_offset = (start - start_all).days + 5
         end_col_offset = start_col_offset + duration - 1
 
-        # Create fill for this task
         color_hex = task_colors[(row_idx - 2) % len(task_colors)]
         fill = PatternFill(start_color=color_hex, end_color=color_hex, fill_type="solid")
 
-        # Merge cells for task duration
+        # Merge cells for the task
         ws.merge_cells(
             start_row=row_idx,
             start_column=start_col_offset,
@@ -325,16 +425,21 @@ def save_task_chart(tasks:str):
             end_column=end_col_offset
         )
 
-        # Write task name inside the merged cell
         cell = ws.cell(row=row_idx, column=start_col_offset)
         cell.value = task["task"]
         cell.fill = fill
         cell.font = font
         cell.alignment = align
 
-        # Apply fill to all cells in the merged range
+        # Fill each cell in the range
         for col in range(start_col_offset, end_col_offset + 1):
             ws.cell(row=row_idx, column=col).fill = fill
+
+    # Add dropdown for Status column (D column, i.e., 4th column)
+    dv = DataValidation(type="list", formula1='"In Progress,On Hold,Completed"', allow_blank=True)
+    status_range = f"D2:D{len(tasks)+1}"
+    dv.add(status_range)
+    ws.add_data_validation(dv)
 
     # Auto-size columns
     for col in ws.columns:
@@ -345,9 +450,47 @@ def save_task_chart(tasks:str):
                 max_length = max(max_length, len(str(cell.value)))
         ws.column_dimensions[column].width = max_length + 2
 
+    dv = DataValidation(type="list", formula1='"In Progress,On Hold,Completed"', allow_blank=True)
+    ws.add_data_validation(dv)
+    status_col = 4  # Column D
+    for row_idx in range(2, len(tasks) + 2):
+        cell = ws.cell(row=row_idx, column=status_col)
+        dv.add(cell)
+
+    # Conditional formatting rules
+    status_column_letter = get_column_letter(status_col)
+
+    # Rule for "In Progress" - Yellow
+    ws.conditional_formatting.add(
+        f"{status_column_letter}2:{status_column_letter}{len(tasks)+1}",
+        FormulaRule(
+            formula=[f'${status_column_letter}2="In Progress"'],
+            fill=PatternFill(start_color="F8FF00", end_color="F8FF00", fill_type="solid")
+        )
+    )
+
+    # Rule for "On Hold" - Blue
+    ws.conditional_formatting.add(
+        f"{status_column_letter}2:{status_column_letter}{len(tasks)+1}",
+        FormulaRule(
+            formula=[f'${status_column_letter}2="On Hold"'],
+            fill=PatternFill(start_color="00F7FF", end_color="00F7FF", fill_type="solid")
+        )
+    )
+
+    # Rule for "Completed" - Green
+    ws.conditional_formatting.add(
+        f"{status_column_letter}2:{status_column_letter}{len(tasks)+1}",
+        FormulaRule(
+            formula=[f'${status_column_letter}2="Completed"'],
+            fill=PatternFill(start_color="92D050", end_color="92D050", fill_type="solid")
+        )
+    )
+
     wb.save(excel_file)
     print(f"Gantt chart saved to: {excel_file}")
     return excel_file
+
 
 if __name__ == "__main__":
 #     tasks = [

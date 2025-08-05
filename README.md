@@ -73,12 +73,12 @@ streamlit run app.py
 ![Task chart](screenshots/usermanual_generated.png)
 ### 5. Task Chart Generated
 #### Question : Create a task chart to build and deploy the SkillLoop MVP. with the following tasks and their timelines:
-   #### Requirement Gathering: Aug 5 – Aug 7
-   #### UI/UX Design: Aug 8 – Aug 12
-   #### Backend Development: Aug 13 – Aug 25
-   #### Integration with Learning Platforms: Aug 20 – Aug 27
-   #### Testing & QA: Aug 28 – Sep 3
-   #### Deployment: Sep 4 – Sep 5
+   - Requirement Gathering: Aug 5 – Aug 7
+   - UI/UX Design: Aug 8 – Aug 12
+   - Backend Development: Aug 13 – Aug 25
+   - Integration with Learning Platforms: Aug 20 – Aug 27
+   - Testing & QA: Aug 28 – Sep 3
+   - Deployment: Sep 4 – Sep 5
 
 ![Task chart](screenshots/task_chart_created.png)
 

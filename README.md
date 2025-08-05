@@ -59,7 +59,7 @@ streamlit run app.py
 
 ## Screenshots
 ### 1. Home UI
-![screenshots](home.png)
+![Home UI](screenshots/home.png)
 
 ## Demo
 Watch the demo video showcasing generation of BRD, Usecase & acceptance criteria, User Manual & Task plan or Gantt chart creation, and the multi-agent interaction here:

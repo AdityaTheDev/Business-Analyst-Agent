@@ -26,8 +26,38 @@ The system was built as a weekend side project to explore GenAI + multi-agent ar
 
 ![System Architecture](Architecture.drawio.png)
 
+The system is powered by a modular multi-agent setup, coordinated by a central orchestrator. Each agent specializes in handling specific Business Analyst tasks.
 
-Each sub-agent is responsible for generating a specific type of documentation, with the orchestrator coordinating tool calls and agent outputs.
+###  Business Analyst Agent (Main Agent)
+The **central brain** of the system. This agent:
+- Takes user input from the UI
+- Chooses the appropriate sub-agent(s) to invoke
+- Ensures flow consistency and handles fallback logic
+
+It acts as the control layer, maintaining conversation context and orchestrating multiple subagents.
+
+---
+
+###  BRD Generator Agent
+Generates a structured **Business Requirement Document** from a given problem statement using its own tool. The output includes:
+- Business objective
+- In scope & Out of scope
+- Stakeholders  
+- Success criteria  
+- Assumptions and constraints  
+
+### BRD Revision Agent
+Allows BRD updates dynamically if user asks to change the generated BRD. Users can specify new inputs or changes, and the agent intelligently revises the original document without losing structure.
+
+### Use Case & Acceptance Criteria Agent
+Creates detailed **use cases** and corresponding **acceptance criteria** based on the problem statement using its own tool. This agent is useful for creating diverse usecases and acceptance criteria
+
+
+### Task Chart Agent
+Generates a **task list with dependencies**, durations, and builds a **Gantt chart in Excel** format—helping teams with planning and tracking. It takes task name, start date and end date as input to generate the task chart.
+
+###  User Manual Agent
+Drafts a **user manual** from product-related information or use cases. Designed to assist in creating helpful user manuals for end-users.
 
 
 

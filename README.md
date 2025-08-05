@@ -1,6 +1,6 @@
 # Business Analyst Agent 
 
-A multi-agentic system to automate project documentation tasks typically handled by Business Analysts. 
+A multi-agentic system to streamline tasks typically handled by Business Analysts. 
 This system leverages LLMs, Google Agent Development Kit (ADK), and custom tools to generate structured documents like BRDs, use case specifications, Gantt charts, and user manuals — in seconds.
 
 ---

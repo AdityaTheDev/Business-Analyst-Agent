@@ -44,7 +44,7 @@ Each sub-agent is responsible for generating a specific type of documentation, w
 
 ##  Installation
 
-> ⚠ This project uses Google ADK, which may require specific environment setup. Refer to [Google ADK Setup Guide](https://github.com/google/agent-development-kit) for instructions.
+> ⚠ This project uses Google ADK, which may require specific environment setup. Refer to [Google ADK Setup Guide](https://google.github.io/adk-docs/) for instructions.
 
 1. Clone the repository:
 

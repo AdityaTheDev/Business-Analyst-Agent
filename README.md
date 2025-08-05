@@ -60,6 +60,14 @@ streamlit run app.py
 ## Screenshots
 ### 1. Home UI
 ![Home UI](screenshots/home.png)
+### 2. BRD Generated
+![BRD](screenshots/brd_generated.png)
+### 3. Usecase and Acceptance Criteria Generated
+![Usecase](screenshots/usecase_generated.png)
+### 4. User Manual Generated
+![Task chart](screenshots/usermanual_generated.png)
+### 5. Task Chart Generated
+![Task chart](screenshots/task_chart_created.png)
 
 ## Demo
 Watch the demo video showcasing generation of BRD, Usecase & acceptance criteria, User Manual & Task plan or Gantt chart creation, and the multi-agent interaction here:

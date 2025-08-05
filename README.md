@@ -22,7 +22,7 @@ The system was built as a weekend side project to explore GenAI + multi-agent ar
 
 ---
 
-##  Agent Architecture
+##  Multiagent Architecture
 
 ![System Architecture](Architecture.drawio.png)
 
@@ -36,7 +36,6 @@ The **central brain** of the system. This agent:
 
 It acts as the control layer, maintaining conversation context and orchestrating multiple subagents.
 
----
 
 ###  BRD Generator Agent
 Generates a structured **Business Requirement Document** from a given problem statement using its own tool. The output includes:
@@ -59,7 +58,7 @@ Generates a **task list with dependencies**, durations, and builds a **Gantt cha
 ###  User Manual Agent
 Drafts a **user manual** from product-related information or use cases. Designed to assist in creating helpful user manuals for end-users.
 
-
+---
 
 ## 📄 Features
 
@@ -86,6 +85,7 @@ source venv/bin/activate  # or venv\Scripts\activate on Windows
 pip install -r requirements.txt
 streamlit run app.py
 ```
+---
 
 ## Screenshots
 ### 1. Home UI
@@ -112,8 +112,12 @@ streamlit run app.py
 
 ![Task chart](screenshots/task_chart_created.png)
 
+---
+
 ## Report Generated
 View the reports generated - [Reports](reports_generated)
+
+---
 
 ## Demo
 Watch the demo video showcasing generation of BRD, Usecase & acceptance criteria, User Manual & Task plan or Gantt chart creation, and the multi-agent interaction here:

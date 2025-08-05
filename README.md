@@ -82,6 +82,9 @@ streamlit run app.py
 
 ![Task chart](screenshots/task_chart_created.png)
 
+## Report Generated
+View the reports generated - [Reports](reports_generated)
+
 ## Demo
 Watch the demo video showcasing generation of BRD, Usecase & acceptance criteria, User Manual & Task plan or Gantt chart creation, and the multi-agent interaction here:
 👉 [Demo Video Link] (add your actual video link)

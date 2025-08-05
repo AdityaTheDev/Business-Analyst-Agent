@@ -59,6 +59,9 @@ streamlit run app.py
 
 ## Screenshots
 ### 1. Home UI
+#### Question : 
+ Create a business requirement document for a tool that allows HR to track employee skills, detect skill gaps, and suggest relevant courses using AI.
+
 ![Home UI](screenshots/home.png)
 ### 2. BRD Generated
 ![BRD](screenshots/brd_generated.png)

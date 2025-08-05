@@ -22,15 +22,9 @@ The system was built as a weekend side project to explore GenAI + multi-agent ar
 
 ---
 
-## 🧩 Agent Architecture
+##  Agent Architecture
 
-Business Analyst Orchestrator Agent
-│
-├── BRD Generator Agent
-├── Use Case + Acceptance Criteria Agent
-├── BRD Revision Agent
-├── Task Chart Agent (Gantt chart generation)
-└── User Manual Agent
+![System Architecture](Architecture.drawio.png)
 
 
 Each sub-agent is responsible for generating a specific type of documentation, with the orchestrator coordinating tool calls and agent outputs.

@@ -15,7 +15,7 @@ The system was built as a weekend side project to explore GenAI + multi-agent ar
 ## 🛠️ Built With
 
 - **Google Agent Development Kit (ADK)** – Multi-agent orchestration  
-- **Gemini 2 Flash Model** – LLM used as the reasoning engine  
+- **Gemini 2.5 Flash Model** – LLM used as the reasoning engine  
 - **Streamlit** – Interactive frontend UI  
 - **Render** – Deployment platform  
 - **Python Libraries** – `openpyxl`, `reportlab`, `pypdf`, and more for document generation

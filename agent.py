@@ -18,29 +18,29 @@ import warnings
 # Ignore all warnings
 warnings.filterwarnings("ignore")
 
-import logging
-logging.basicConfig(level=logging.ERROR)
-
 print("Libraries imported.")
 
 try:
     from dotenv import load_dotenv
     load_dotenv()
 
-    MODEL_NAME = os.environ.get("GOOGLE_GENAI_MODEL", "gemini-2.0-flash")
+    MODEL_NAME = os.environ.get("GOOGLE_GENAI_MODEL", "gemini-2.5-flash")
 except ImportError:
     print("Warning: python-dotenv not installed. Ensure API key is set")
-    MODEL_NAME = "gemini-2.0-flash"
+    MODEL_NAME = "gemini-2.5-flash"
 
 
-MODEL_GEMINI_2_0_FLASH = "gemini-2.0-flash" # Starting with Gemini
+
+
+
+MODEL_GEMINI_2_5_FLASH = "gemini-2.5-flash" # Starting with Gemini
 
 
 
 # BRD Generator Agent
 BRDGeneratorAgent = Agent(
         # Can use the same or a different model
-        model = MODEL_GEMINI_2_0_FLASH,
+        model = MODEL_GEMINI_2_5_FLASH,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="BRDGeneratorAgent",
         instruction=BRD_instruction,
@@ -49,7 +49,7 @@ BRDGeneratorAgent = Agent(
     )
 
 BRDRevisionAgent = Agent(
-        model = MODEL_GEMINI_2_0_FLASH,
+        model = MODEL_GEMINI_2_5_FLASH,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="BRDRevisionAgent",
         instruction=BRD_Revision_Instruction,
@@ -57,7 +57,7 @@ BRDRevisionAgent = Agent(
         tools=[save_report],
     )
 UserManualAgent = Agent(
-        model = MODEL_GEMINI_2_0_FLASH,
+        model = MODEL_GEMINI_2_5_FLASH,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="UserManualAgent",
         instruction=Usermanual_instruction,
@@ -65,7 +65,7 @@ UserManualAgent = Agent(
         tools=[save_user_manual],
     )
 UsecaseAcceptanceCriteriaAgent = Agent(
-        model = MODEL_GEMINI_2_0_FLASH,
+        model = MODEL_GEMINI_2_5_FLASH,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="UsecaseAcceptanceCriteriaAgent",
         instruction=usecase_acceptance_criteria_instruction,
@@ -74,7 +74,7 @@ UsecaseAcceptanceCriteriaAgent = Agent(
     )
 
 TaskChartAgent= Agent(
-        model = MODEL_GEMINI_2_0_FLASH,
+        model = MODEL_GEMINI_2_5_FLASH,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="TaskChartAgent",
         instruction=task_chart_instruction,
@@ -85,7 +85,7 @@ TaskChartAgent= Agent(
 
 # --- Business Analyst Agent ---
 business_analyst_agent = Agent(
-        model = MODEL_GEMINI_2_0_FLASH,
+        model = MODEL_GEMINI_2_5_FLASH,
         # model=LiteLlm(model=MODEL_GPT_4O), # If you would like to experiment with other models
         name="business_analyst_agent",
         instruction=Business_analyst_instruction,
@@ -96,11 +96,7 @@ business_analyst_agent = Agent(
 
 root_agent=business_analyst_agent
 
-# @title Setup Session Service and Runner
 
-# --- Session Management ---
-# Key Concept: SessionService stores conversation history & state.
-# InMemorySessionService is simple, non-persistent storage for this tutorial.
 
 async def call_agent_async(query: str, runner, user_id, session_id):
   """Sends a query to the agent and prints the final response."""
@@ -111,13 +107,9 @@ async def call_agent_async(query: str, runner, user_id, session_id):
 
   final_response_text = "Agent did not produce a final response." # Default
 
-  # Key Concept: run_async executes the agent logic and yields Events.
-  # We iterate through events to find the final answer.
+  
   async for event in runner.run_async(user_id=user_id, session_id=session_id, new_message=content):
-      # You can uncomment the line below to see *all* events during execution
-      # print(f"  [Event] Author: {event.author}, Type: {type(event).__name__}, Final: {event.is_final_response()}, Content: {event.content}")
-
-      # Key Concept: is_final_response() marks the concluding message for the turn.
+      
       if event.is_final_response():
           if event.content and event.content.parts:
              # Assuming text response in the first part
@@ -158,7 +150,8 @@ async def run_c():
     await call_agent_async("The client needs an internal tool for automating leave approvals. It should integrate with their existing HRMS. Only managers can approve or reject leave. Employees should be able to see their leave history and balance. The tool should be browser-based and mobile-friendly. The initial rollout will be for 3 departments. Launch expected in Q4.",runner=runner,user_id=USER_ID,session_id=SESSION_ID)
 
 
-# if __name__=="__main__":
-#     asyncio.run(run_c())
+if __name__=="__main__":
+
+    asyncio.run(run_c())
 
 # The client needs an internal tool for automating leave approvals. It should integrate with their existing HRMS. Only managers can approve or reject leave. Employees should be able to see their leave history and balance. The tool should be browser-based and mobile-friendly. The initial rollout will be for 3 departments. Launch expected in Q4.
